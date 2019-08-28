@@ -1,0 +1,23 @@
+{
+  "manifest_version": 2,
+  "name": "Trade Value Calculator",
+  "version": "1.0",
+
+  "description": "Interactive trade value calculator with values taken from /u/PeakedInHighSkool",
+
+  "icons": {
+    "48": "icons/trade_48.png"
+  },
+
+  "permissions": [
+    "<all_urls>",
+    "activeTab",
+    "storage"
+  ],
+
+  "browser_action": {
+    "default_icon": "icons/trade_48.png",
+    "default_title": "Trade Values",
+    "default_popup": "popup/popup.html"
+  }
+}

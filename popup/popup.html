@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="popup.css">
+	</head>
+	<body>
+		<div>
+			<button id="1">STANDARD</button>
+			<button id="2" class="active">HALF-PPR</button>
+			<button id="3">FULL-PPR</button>
+		</div>
+		<div id="updated">
+			<span>Last Updated: Week ()</span>
+		</div>
+		<table id="main_table">
+			<thead>
+				<tr>
+					<th class="name"></th>
+					<th class="name"></th>
+				</tr>
+			</thead>
+			<tbody id="table">
+				<tr><td colspan="2" style="background: black; opacity: .3"></td></tr>
+			</tbody>
+		</table>
+		<input type="hidden" id="scoring_idx"  value="2" />
+		<script src="popup.js"></script>
+	</body>
+</html>
