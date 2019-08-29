@@ -181,11 +181,17 @@ var increment = function() {
 	findBest();
 }
 
-function last_updated(date) {
+function last_updated(date_str) {
 	const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-	var week = date.split(",")[0];
-	var date = new Date(date.split(",")[1]);
-	document.getElementById("updated").getElementsByTagName("span")[0].innerText = "Last Updated: Week {} ({} {})".format(week, monthNames[date.getMonth()], date.getDate() + 1);	
+	var week = date_str.split(",")[0];
+	var date = new Date(date_str.split(",")[1]);
+	var link = "#";
+	if (date_str.split(",").length > 2) {
+		link = date_str.split(",")[2];
+	}
+	var a = document.getElementById("updated").getElementsByTagName("span")[0].getElementsByTagName("a")[0];
+	a.innerText = "Last Updated: Week {} ({} {})".format(week, monthNames[date.getMonth()], date.getDate() + 1);
+	a.href = link;
 }
 
 function onGot(storage) {

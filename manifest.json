@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Trade Value Calculator",
-  "version": "1.0",
+  "version": "1.1",
 
   "description": "Interactive trade value calculator with values taken from /u/PeakedInHighSkool",
 
