@@ -13,6 +13,8 @@ function formatArgs(trade_results) {
 	args += "&evaluate="+evaluate;
 	args += "&is_espn="+is_espn;
 	args += "&is_nfl="+is_nfl;
+	args += "&is_sleeper="+is_sleeper;
+	args += "&is_cbs="+is_cbs;
 
 	for (var i = 0; i < 2; ++i) {
 		var players = trade_results[i]["players"];
@@ -39,14 +41,23 @@ function getOffenseIndexes(tables) {
 	return indexes;
 }
 
-var is_espn = (window.location.host.indexOf("espn") != -1);
-var is_nfl = window.location.host == "fantasy.nfl.com";
-var is_yahoo = window.location.host == "football.fantasysports.yahoo.com";
+var is_espn = false, is_nfl = false, is_yahoo = false, is_sleeper = false, is_cbs = false;
+if (window.location.host.indexOf("espn") >= 0) {
+	is_espn = true;
+} else if (window.location.host == "fantasy.nfl.com") {
+	is_nfl = true;
+} else if (window.location.host == "football.fantasysports.yahoo.com") {
+	is_yahoo = true;
+} else if (window.location.host == "sleeper.app") {
+	is_sleeper = true;
+} else if (window.location.host.indexOf("cbssports.com") >= 0) {
+	is_cbs = true;
+}
 var path = window.location.pathname.split("/").pop();
 var trade_results = [ {"players": []}, {"players": []} ];
 var players_picked = false, evaluate = false, viewtrade = false;
 
-if (!is_espn && !is_nfl && !is_yahoo) {
+if (!is_espn && !is_nfl && !is_yahoo && !is_sleeper && !is_cbs) {
 	throw new Error("Not a fantasy site! Returning");
 }
 
@@ -147,7 +158,31 @@ if (is_espn) {
 			}
 		}
 	}
-} else {
+} else if (is_sleeper) {
+
+} else if (is_cbs) {
+	var rows = document.getElementById("teamTradeJS").getElementsByTagName("tr");
+
+	// skip headers
+	for (var i = 2; i < rows.length; ++i) {
+		var pre_names = rows[i].getElementsByClassName("playerLink");
+		var names = [];
+
+		for (var j = 0; j < pre_names.length; ++j) {
+			if (pre_names[j].getAttribute("subtab") == null) {
+				names.push(pre_names[j]);
+			}
+		}
+		var pos_teams = rows[i].getElementsByClassName("playerPositionAndTeam");
+		var checkboxes = rows[i].getElementsByClassName("playerCheckBox");
+		for (var j = 0; j < pos_teams.length; ++j) {
+			var name = names[j].innerText;
+			var pos_team = pos_teams[j].innerText.split(" | ");
+			trade_results[j]["players"].push("{},{},{},{}".format(name,pos_team[1],pos_team[0],checkboxes[j].checked));
+		}
+	}
+	
+} else if (is_yahoo) {
 	var viewtrade = (window.location.pathname.indexOf("viewtrade") !== -1);
 	var players_picked = (window.location.search.indexOf("stage=1") === -1) || viewtrade;
 	var tradeform = document.getElementById("proposetradeform");
@@ -215,7 +250,14 @@ if (is_espn) {
 		team_name0 = document.getElementsByClassName("actionTables")[0].getElementsByTagName("h4")[0].innerHTML.split(" Player Roster")[0];
 		team_name1 = "My Team";
 	}
-} else {
+
+} else if (is_cbs) {
+	team_name0 = document.getElementsByClassName("teamName")[0].innerText;
+	team_name1 = document.getElementById("selectTeamToTrade").getElementsByTagName("span")[0].innerText;
+	if (team_name1 == "Select Team To Trade With") {
+		team_name1 = "";
+	}
+} else if (is_yahoo) {
 	if (evaluate) {
 		team_name0 = document.getElementById("evaluate-players").getElementsByTagName("h3")[0].getElementsByTagName("a")[0].innerHTML;
 		team_name1 = document.getElementById("evaluate-players").getElementsByTagName("h3")[1].getElementsByTagName("a")[0].innerHTML;
