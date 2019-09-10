@@ -16,6 +16,9 @@ tr td:nth-child(1), tr th:nth-child(1) {
 td, th {
 	padding: 5px;
 }
+.name,#totals_row td,.player_td {
+	border: 1px solid black;
+}
 td:hover {
 	cursor: pointer;
 }
