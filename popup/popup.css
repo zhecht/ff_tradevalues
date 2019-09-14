@@ -1,10 +1,7 @@
 
 table {
 	border-collapse: collapse;
-	width: 375px;
-	height: 150px;
-	margin-top: 8px;
-	margin-bottom: 8px;
+	width: 420px;
 }
 
 tr {
@@ -14,7 +11,7 @@ tr td:nth-child(1), tr th:nth-child(1) {
 	border-right: 1px solid;
 }
 td, th {
-	padding: 5px;
+	padding: 4px;
 }
 .name,#totals_row td,.player_td {
 	border: 1px solid black;
@@ -23,7 +20,7 @@ td:hover {
 	cursor: pointer;
 }
 div {
-	width: 375px;
+	width: 420px;
 	display: flex;
 }
 button {
@@ -42,63 +39,26 @@ button.active {
 .best, .clicked {
 	background-color: #00ff00;
 }
+
+#continue {
+	text-align: right;
+	display: none;
+}
+
+#continue a {
+	text-decoration: none;
+}
+
 #updated {
 	text-align: center;
-	padding-top: 5px;
 	font-style: italic;	
+}
+
+#updated a {
+	
 }
 
 #updated span {
 	width: 100%;
-}
-
-/*
-body {
-}
-table {
-	border-collapse: collapse;
-	width: 300px;
-	height: 100px;
-	margin-top: 8px;
-	margin-bottom: 8px;
-	float: left;
-}
-tr {
-	border: 1px solid;
-}
-tr td:nth-child(1), tr th:nth-child(1) {
-	border-right: 1px solid;
-}
-td, th {
 	padding: 5px;
 }
-td:hover {
-	cursor: pointer;
-}
-div {
-	width: 300px;
-	float:left;
-}
-button {
-	color: white;
-	text-align: center;
-	cursor: pointer;
-	background: rgba(0,0,0,0);
-	float: left;
-	width: 100px;
-	color: #006BB6;
-	padding: 7px;
-}
-
-button.active {
-	box-shadow: inset 0 0 0 0px white,inset 0 5px 40px #231F20;
-}
-.best, .clicked {
-	background-color: #00ff00;
-}
-#updated {
-	text-align: center;
-	padding-top: 5px;
-	font-style: italic;
-}
-*/

@@ -48,6 +48,7 @@ function fillTable(results) {
 				} else if (sp[2] === "true") {
 					all_tot[t] += all_displays[t];
 					all_classes[t] += " clicked";
+					players_picked_per_team[t] += 1;
 				}
 			} else {
 				all_names.push("");
@@ -107,6 +108,12 @@ function findBest() {
 			document.getElementById("total{}".format(i)).className = "";
 		}
 	}
+
+	if (!players_picked && everyTeamHasPicked()) {
+		document.getElementById("continue").style = "text-align: right; display: block;";
+	} else {
+		document.getElementById("continue").style = "display: none;";
+	}
 }
 
 function resetTotal() {
@@ -162,28 +169,56 @@ var changeScoring = function() {
 	findBest();
 }
 
+function onResponseGot() {
+
+}
+
+function everyTeamHasPicked() {
+	var b = true;
+	for (var i = 0; i < global_total_teams; ++i) {
+		if (players_picked_per_team[i] == 0) {
+			b = false
+		}
+	}
+	return b;
+}
+
 var increment = function() {
 	var team = parseInt(this.id.split("_")[0]);
 	var scoring_idx = parseFloat(document.getElementById("scoring_idx").value);
 	var val = parseFloat(this.id.split("_")[scoring_idx]);
 	var total = document.getElementById("total"+team);
+	var should_click = true;
 
-	if (document.getElementsByClassName("clicked").length === 0) {
+	var tot_clicked = document.getElementsByClassName("clicked").length;
+	if (tot_clicked == 0) {
 		resetTotal();
 	}
 
 	if ( (" " + this.className + " ").indexOf(" clicked ") > -1 )  {
-		// not clicked
+		// uncheck ad decrement from total
+		should_click = false;
 		this.className = this.className.split(" ")[0];
 		total.innerText = parseFloat(total.innerText) - val;
-	} else {		
+		players_picked_per_team[team]--;
+	} else {
 		this.className += " clicked";
 		total.innerText = parseFloat(total.innerText) + val;
+		players_picked_per_team[team]++;
 	}
 	if (total.innerText === NaN) {
 		total.innerText = 0;
 	}
 	findBest();
+
+	if (!players_picked && !evaluate) {
+		browser.storage.local.set({
+			clicked_team: team,
+			clicked_name: this.innerText.split(" - ")[1],
+			should_click: should_click
+		}, function() {});
+		browser.tabs.executeScript({file: "/content_scripts/response.js"}).then(onResponseGot).catch(onError);
+	}
 }
 
 function last_updated(date_str) {
@@ -203,18 +238,19 @@ function setup_html(num_teams) {
 	for (var i = 0 ; i < num_teams; ++i) {
 		var th = document.createElement("th");
 		th.className = "name";
-		document.getElementById("header_row").appendChild(th);	
+		document.getElementById("header_row").appendChild(th);
+		players_picked_per_team.push(0);
 	}
 	document.getElementById("black_bar").colSpan = num_teams.toString();
 }
 
-function onGot(storage) {
+function onStorageGot(storage) {
 	players_picked = storage["players_picked"];
-	if (storage["team_names"].length == 0) {
+	global_total_teams = storage["team_names"].length;
+	if (global_total_teams == 0) {
 		return;
 	}
-	setup_html(storage["team_names"].length);
-
+	setup_html(global_total_teams);
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
 		if (this.readyState === 4 && this.status === 200) {
@@ -239,17 +275,31 @@ function onError(error) {
 }
 
 function onExecScript() {
-	browser.storage.local.get().then(onGot, onError);
+	browser.storage.local.get().then(onStorageGot, onError);
 }
 
 function onExecScriptErr(error) {
 	console.log("ERROR: "+ error);
 }
 
-var players_picked = false;
+function onContinueGot() {
+	window.close();
+}
+
+function continueTrade() {
+	browser.tabs.executeScript({file: "/content_scripts/continue_trade.js"}).then(onContinueGot).catch(onError);
+}
+
+// init globals
+var is_espn = false, is_nfl = false, is_yahoo = false, is_sleeper = false, is_cbs = false;
+var players_picked = false, evaluate = false, viewtrade = false;
+var players_picked_per_team = [];
+var global_total_teams = 0;
 browser.tabs.executeScript({file: "/content_scripts/main.js"}).then(onExecScript).catch(onExecScriptErr);
 
 var btns = document.getElementsByTagName("button");
 for (var i = 0; i < btns.length; ++i) {
 	btns[i].addEventListener("click", changeScoring, false);
 }
+
+var continue_link = document.getElementById("continue").getElementsByTagName("a")[0].addEventListener("click", continueTrade, false);
