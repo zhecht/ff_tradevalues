@@ -42,6 +42,28 @@ function getOffenseIndexes(tables) {
 	return indexes;
 }
 
+function fix_input_ids(ids) {
+	var key_vals = {
+		"todd gurley": "todd gurley ii",
+		"melvin gordon": "melvin gordon iii",
+		"odell beckham jr": "odell beckham jr.",
+		"odell beckham": "odell beckham jr.",
+		"allen robinson": "allen robinson ii",
+		"marvin jones": "marvin jones jr.",
+		"will fuller": "will fuller v",
+		"duke johnson": "duke johnson jr.",
+		"mark ingram": "mark ingram ii",
+		"mark ingram ii": "mark ingram",
+		"dj moore": "d.j. moore"
+	};
+	for (var key in key_vals) {
+		if (key in ids) {
+			ids[key_vals[key]] = ids[key];
+		}
+	}
+	return ids;
+}
+
 var is_espn = false, is_nfl = false, is_yahoo = false, is_sleeper = false, is_cbs = false;
 if (window.location.host.indexOf("espn") >= 0) {
 	is_espn = true;
@@ -70,23 +92,17 @@ if (is_espn) {
 	if (step2) {
 		var tables = document.getElementsByClassName("propose-trade-content")[0].children[1].children;
 	} else {
-		//var tables = document.getElementsByClassName("Table2__right-aligned");
 		var tables = document.getElementsByClassName("players-table");
 	}
 	var idx = 0;
 	for (var i = 0; i < tables.length; ++i) {
-		//console.log(tables[i].getElementsByTagName("span")[0].innerText, tables[i].getElementsByTagName("span")[0].innerText == "Your Players");
-		if (tables[i].getElementsByTagName("span")[0].innerText == "Your Players") {
+		if (step2 && tables[i].getElementsByTagName("span").length && tables[i].getElementsByTagName("span")[0].innerText == "Your Players") {
 			idx = 1;
 		}
 
 		names = tables[i].getElementsByClassName("player-column_info");
 		
-		var inputs;
-		if (!step2 || (step2 && idx == 1)) {
-			var inputs = tables[i].getElementsByTagName("button");
-		}
-		//console.log(names, tables[i], inputs);
+		var inputs = tables[i].getElementsByTagName("button");
 		for (var j = 0; j < names.length; ++j) {
 			if (idx == 0 && step2) {
 				var checked = true;
@@ -102,13 +118,13 @@ if (is_espn) {
 			var pos = names[j].getElementsByClassName("playerinfo__playerpos")[0].innerText;
 
 			trade_results[idx]["players"].push("{},{},{},{}".format(name,team,pos,checked));
-			if (!step2 || (step2 && idx == 1)) {
+			//if (!step2 || (step2 && idx == 1)) {
 				//console.log(name, i, j);
-				input_ids[name.toLowerCase().replace("/", "")] = {
+				input_ids[name.toLowerCase().replace("'","").replace("/", "")] = {
 					"table_idx": i,
 					"btn_idx": j
 				};
-			}
+			//}
 		}
 	}
 } else if (is_nfl) {
@@ -134,13 +150,9 @@ if (is_espn) {
 					var checked = false;
 
 					trade_results[team_idx]["players"].push("{},{},{},{}".format(full,team,pos,checked));
-					//input_ids[full.toLowerCase().replace("/", "")] = 
 				}
 			}
 		}
-	} else if (path == "players") {
-
-
 	} else {
 		var in_display = [];
 		var rows = document.getElementsByClassName("displayTables")[0].getElementsByTagName("tr");
@@ -161,12 +173,15 @@ if (is_espn) {
 					var pos = pos_team.split(" - ")[0];
 					var team = pos_team.split(" - ")[1];
 					var checked = false;
-					
+
 					if (in_display.indexOf(full) > -1) {
 						checked = true;
 					} else if (i == 0) {
 						checked = inputs[k].checked;
-						input_ids[full.toLowerCase().replace("/", "")] = inputs[k].id;
+					}
+
+					if (i != 1) {
+						input_ids[full.toLowerCase().replace("'", '').replace("/", "")] = inputs[k].id;
 					}
 
 					trade_results[i]["players"].push("{},{},{},{}".format(full,team,pos,checked));
@@ -236,7 +251,7 @@ if (is_espn) {
 				var pos_team = rows[i].getElementsByClassName("position")[0].innerText.trim();
 				var pos = pos_team.split(" - ")[0];
 				var team = pos_team.split(" - ")[1];
-				input_ids[name.toLowerCase()] = i;
+				input_ids[name.toLowerCase().replace("'", '')] = i;
 				trade_results[idx]["players"].push("{},{},{},{}".format(name,team,pos,checked));
 			}
 		}
@@ -259,7 +274,7 @@ if (is_espn) {
 		for (var j = 0; j < pos_teams.length; ++j) {
 			var name = names[j].innerText;
 			var team_pos = pos_teams[j].innerText.split(" | ");
-			input_ids[name.toLowerCase()] = checkboxes[j].name;
+			input_ids[name.toLowerCase().replace("'", '')] = checkboxes[j].name;
 			trade_results[j]["players"].push("{},{},{},{}".format(name,team_pos[1],team_pos[0],checkboxes[j].checked));
 		}
 	}
@@ -277,13 +292,24 @@ if (is_espn) {
 		tradeform = document.getElementById("evaluate-players");
 		tables = [tradeform.getElementsByTagName("section")[0], tradeform.getElementsByTagName("section")[1]];
 		cutoff = 2;
+	} else if (viewtrade) {
+		tradeform = document.getElementById("viewtradeactions");
+		tables = tradeform.children;
+		cutoff = tables.length;
+		curr_team = -1; // start negative bc we see Trade from twice
 	} else {
 		tables = tradeform.children;
 	}
 
 	for (var i = 0; i < cutoff; ++i) {
 		// check this later but everytime...this is the section for team #2's name
-		if (i == 1) {
+		if (viewtrade) {
+			var span_text = tables[i].getElementsByTagName("span");
+			if (span_text.length && span_text[0].innerText == "Players to Trade from...") {
+				curr_team++;
+				continue;
+			}
+		} else if (i == 1) {
 			curr_team = 1;
 			if (!evaluate) {
 				continue;	
@@ -323,7 +349,7 @@ if (is_espn) {
 				var pos = span.split(" - ")[1];
 				trade_results[curr_team]["players"].push("{},{},{},{}".format(name,team,pos,checked));
 				if (!players_picked) {
-					input_ids[name.toLowerCase()] = inputs[j - empty_len].id;
+					input_ids[name.toLowerCase().replace("'", '')] = inputs[j - empty_len].id;
 				}
 				
 			} else {
@@ -381,6 +407,8 @@ if (is_espn) {
 if (!is_sleeper) {	
 	team_names = [team_name0, team_name1];
 }
+
+input_ids = fix_input_ids(input_ids);
 
 var args = formatArgs(trade_results);
 browser.storage.local.set({

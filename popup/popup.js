@@ -125,8 +125,10 @@ function findBest() {
 
 	if (!players_picked && everyTeamHasPicked()) {
 		document.getElementById("continue").style = "text-align: right; display: block;";
+		document.getElementById("updated").getElementsByTagName("span")[0].style = "text-align: left;";
 	} else {
 		document.getElementById("continue").style = "display: none;";
+		document.getElementById("updated").getElementsByTagName("span")[0].style = "text-align: center;";
 	}
 }
 
@@ -279,7 +281,6 @@ function onStorageGot(storage) {
 				}
 			}
 			if (global_total_teams == 3) {
-				console.log("changing style");
 				document.getElementsByTagName("table")[0].style = "width: 550px;";
 				var div = document.getElementsByTagName("div");
 				for (var i = 0; i < div.length; ++i) {
