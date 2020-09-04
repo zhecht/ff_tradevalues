@@ -76,7 +76,16 @@ function fillTable(results) {
 			var td = document.createElement("td");
 			td.className = all_classes[i];
 			td.id = "{}_{}".format(i, all_vals[i]);
-			td.innerText = "{} - {}".format(all_displays[i], all_names[i]);
+			var div = document.createElement("div");
+			var name_span = document.createElement("span");
+			name_span.innerText = all_names[i];
+			var val_span = document.createElement("span");
+			val_span.style["padding-left"] = "10px";
+			val_span.innerText = all_displays[i];
+			div.appendChild(name_span);
+			div.appendChild(val_span);
+			//td.innerText = "{} - {}".format(all_displays[i], all_names[i]);
+			td.appendChild(div);
 			tr.appendChild(td);
 		}
 		document.getElementById("table").appendChild(tr);
@@ -125,7 +134,6 @@ function findBest() {
 
 	if (!players_picked && everyTeamHasPicked()) {
 		document.getElementById("continue").style = "text-align: right; display: block;";
-		document.getElementById("updated").getElementsByTagName("span")[0].style = "text-align: left;";
 	} else {
 		document.getElementById("continue").style = "display: none;";
 		document.getElementById("updated").getElementsByTagName("span")[0].style = "text-align: center;";
@@ -166,7 +174,7 @@ var changeScoring = function() {
 			var sp = tds[t].id.split("_");
 			if (sp.length > 2) {
 				var val = parseFloat(sp[scoring_idx]);
-				tds[t].innerText = "{} - {}".format(val, tds[t].innerText.split(" - ")[1]);
+				tds[t].getElementsByTagName("span")[1].innerText = val;
 				if (players_picked) {
 					all_tot[t] += val;
 				} else {
@@ -230,7 +238,7 @@ var increment = function() {
 	if (!players_picked && !evaluate) {
 		browser.storage.local.set({
 			clicked_team: team,
-			clicked_name: this.innerText.split(" - ")[1],
+			clicked_name: this.getElementsByTagName("span")[0].innerText,
 			should_click: should_click
 		}, function() {});
 		browser.tabs.executeScript({file: "/content_scripts/response.js"}).then(onResponseGot).catch(onError);
@@ -284,7 +292,7 @@ function onStorageGot(storage) {
 				document.getElementsByTagName("table")[0].style = "width: 550px;";
 				var div = document.getElementsByTagName("div");
 				for (var i = 0; i < div.length; ++i) {
-					div[i].style = "width: 550px;";
+					//div[i].style = "width: 550px;";
 				}
 			}
 		}

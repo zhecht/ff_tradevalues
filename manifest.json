@@ -3,7 +3,7 @@
   "name": "Trade Value Calculator",
   "version": "1.5.1",
 
-  "description": "Interactive trade value calculator with values calculated by /u/PeakedInHighSkool",
+  "description": "Interactive Fantasy Football trade value calculator with values calculated by /u/PeakedInHighSkool",
 
   "icons": {
     "48": "icons/trade_48.png"

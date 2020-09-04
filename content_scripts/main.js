@@ -283,7 +283,7 @@ if (is_espn) {
 	var viewtrade = (window.location.pathname.indexOf("viewtrade") !== -1);
 	var players_picked = (window.location.search.indexOf("stage=1") === -1) || viewtrade;
 	var tradeform = document.getElementById("proposetradeform");
-	var evaluate = (document.getElementsByTagName("h1")[0].innerHTML === "Evaluate Trade");
+	var evaluate = (document.getElementsByTagName("h1")[0].innerText === "Evaluate Trade");
 	var curr_team = 0;
 
 	var tables;
@@ -312,7 +312,7 @@ if (is_espn) {
 		} else if (i == 1) {
 			curr_team = 1;
 			if (!evaluate) {
-				continue;	
+				continue;
 			}
 		}
 		var names = tables[i].getElementsByClassName("ysf-player-name");
@@ -423,4 +423,4 @@ browser.storage.local.set({
 	is_sleeper: is_sleeper,
 	is_cbs: is_cbs,
 	input_ids: input_ids
-}, function() {console.log("SET");});
+}, function() {});

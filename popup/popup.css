@@ -1,7 +1,9 @@
 
+body  {
+	font-size: 13px;
+}
 table {
 	border-collapse: collapse;
-	width: 420px;
 }
 
 tr {
@@ -10,17 +12,26 @@ tr {
 tr td:nth-child(1), tr th:nth-child(1) {
 	border-right: 1px solid;
 }
-td, th {
-	padding: 4px;
+th {
+	padding: 6px;
 }
 .name,#totals_row td,.player_td {
 	border: 1px solid black;
+}
+.player_td div {
+	display: flex;
+	justify-content: space-between;
+}
+#totals_row td, .player_td div {
+	padding:6px;
+}
+#totals_row td {
+	text-align: center;
 }
 td:hover {
 	cursor: pointer;
 }
 div {
-	width: 420px;
 	display: flex;
 }
 button {
@@ -31,6 +42,7 @@ button {
 	color: #006BB6;
 	padding: 7px;
 	flex: 1;
+	font-weight: bold;
 }
 
 button.active {
