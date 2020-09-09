@@ -33,9 +33,23 @@ function init_players_picked_per_team(results) {
 	}
 }
 
+function black_bar() {
+	var tr = document.createElement("tr");
+	var td = document.createElement("td");
+	td.id = "black_bar";
+	td.colSpan = global_total_teams;
+	td.style.background = "black";
+	td.style.opacity = 0.3;
+	tr.appendChild(td);
+	return tr
+}
+
 function fillTable(results) {
 	var player_len = 0;
 	var all_tot = [];
+	var table = document.getElementById("table");
+	table.innerHTML = "";
+	table.appendChild(black_bar());
 
 	init_players_picked_per_team(results);
 	document.getElementById("total_teams").value = results["total_teams"];
@@ -88,7 +102,7 @@ function fillTable(results) {
 			td.appendChild(div);
 			tr.appendChild(td);
 		}
-		document.getElementById("table").appendChild(tr);
+		table.appendChild(tr);
 	}
 	
 	// black bar
@@ -97,9 +111,10 @@ function fillTable(results) {
 	td.colSpan = results["is_sleeper"] ? results["total_teams"].toString() : "2";
 	td.style = "background-color: black; opacity: .4;";
 	tr.appendChild(td);
-	document.getElementById("table").appendChild(tr);
+	table.appendChild(tr);
 
 	// total display
+	/*
 	var tr = document.createElement("tr");
 	tr.id = "totals_row";
 	for (var i = 0; i < results["total_teams"]; ++i) {
@@ -108,9 +123,9 @@ function fillTable(results) {
 		td.innerText = all_tot[i];
 		tr.appendChild(td);
 	}
-
-	document.getElementById("table").appendChild(tr);
-
+	table.appendChild(tr);
+	*/
+	
 	findBest();
 }
 
@@ -265,7 +280,6 @@ function setup_html(num_teams) {
 		document.getElementById("header_row").appendChild(th);
 		players_picked_per_team.push(0);
 	}
-	document.getElementById("black_bar").colSpan = num_teams.toString();
 }
 
 function onStorageGot(storage) {
