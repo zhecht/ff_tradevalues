@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Trade Value Calculator",
-  "version": "1.5.2",
+  "version": "1.5.4",
 
   "description": "Interactive Fantasy Football trade value calculator with values calculated by /u/PeakedInHighSkool",
 

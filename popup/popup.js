@@ -33,37 +33,33 @@ function init_players_picked_per_team(results) {
 	}
 }
 
-function black_bar() {
-	var tr = document.createElement("tr");
-	var td = document.createElement("td");
-	td.id = "black_bar";
-	td.colSpan = global_total_teams;
-	td.style.background = "black";
-	td.style.opacity = 0.3;
-	tr.appendChild(td);
-	return tr
+function blackBar() {
+	const bar = document.createElement("div");
+	bar.className = "blackBar";
+	return bar;
 }
 
 function fillTable(results) {
-	var player_len = 0;
-	var all_tot = [];
-	var table = document.getElementById("table");
+	let player_len = 0;
+	const all_tot = [];
+	const table = document.getElementById("table");
 	table.innerHTML = "";
-	table.appendChild(black_bar());
+	table.appendChild(blackBar());
 
 	init_players_picked_per_team(results);
 	document.getElementById("total_teams").value = results["total_teams"];
+
 	for (var i = 0; i < results["total_teams"]; ++i) {
-		document.getElementsByClassName("name")[i].innerText = results["team_names"][i];
-		if (results["teams"]["team{}".format(i)].length > player_len) {
-			player_len = results["teams"]["team{}".format(i)].length;
+		document.getElementById("headerRow").getElementsByTagName("div")[i].innerText = results["team_names"][i];
+		if (results["teams"][`team${i}`].length > player_len) {
+			player_len = results["teams"][`team${i}`].length;
 		}
 		all_tot.push(0);
 	}
 	for (var p = 0; p < player_len; ++p) {
 		var all_names = [], all_vals = [], all_displays = [], all_classes = [];
 		for (var t = 0; t < results["total_teams"]; ++t) {
-			all_classes.push("player_td");
+			all_classes.push("playerData");
 
 			if (p < results["teams"]["team{}".format(t)].length) {
 				var sp = results["teams"]["team{}".format(t)][p].split(",");
@@ -85,24 +81,24 @@ function fillTable(results) {
 			}
 		}
 
-		var tr = document.createElement("tr"); tr.className = "player_row";
+		const row = document.createElement("div");
+		row.className = "playerRow";
 		for (var i = 0; i < results["total_teams"]; ++i) {
-			var td = document.createElement("td");
-			td.className = all_classes[i];
-			td.id = "{}_{}".format(i, all_vals[i]);
-			var div = document.createElement("div");
-			var name_span = document.createElement("span");
-			name_span.innerText = all_names[i];
-			var val_span = document.createElement("span");
-			val_span.style["padding-left"] = "10px";
-			val_span.innerText = all_displays[i];
-			div.appendChild(name_span);
-			div.appendChild(val_span);
-			//td.innerText = "{} - {}".format(all_displays[i], all_names[i]);
-			td.appendChild(div);
-			tr.appendChild(td);
+			const col = document.createElement("div");
+			col.className = all_classes[i];
+			col.id = "{}_{}".format(i, all_vals[i]);
+			const name = document.createElement("p");
+			name.innerText = all_names[i];
+			const val = document.createElement("p");
+			val.className = "val";
+			if (all_displays[i]) {
+				val.innerText = all_displays[i].toFixed(1);
+			}
+			col.appendChild(name);
+			col.appendChild(val);
+			row.appendChild(col);
 		}
-		table.appendChild(tr);
+		table.appendChild(row);
 	}
 	
 	// black bar
@@ -114,36 +110,27 @@ function fillTable(results) {
 	table.appendChild(tr);
 
 	// total display
-	/*
-	var tr = document.createElement("tr");
-	tr.id = "totals_row";
 	for (var i = 0; i < results["total_teams"]; ++i) {
-		var td = document.createElement("td");
-		td.id = "total{}".format(i);
-		td.innerText = all_tot[i];
-		tr.appendChild(td);
+		document.getElementById(`total${i}`).innerText = all_tot[i];
 	}
-	table.appendChild(tr);
-	*/
-	
 	findBest();
 }
 
 function findBest() {
-	var highest_tot = 0;
-	var total_teams = parseInt(document.getElementById("total_teams").value);
-	for (var i = 0; i < total_teams; ++i) {
-		var val = parseFloat(document.getElementById("total{}".format(i)).innerText);
+	let highest_tot = 0;
+	const total_teams = parseInt(document.getElementById("total_teams").value);
+	for (let i = 0; i < total_teams; ++i) {
+		const val = parseFloat(document.getElementById(`total${i}`).innerText);
 		if (val >= highest_tot) {
 			highest_tot = val;
 		}
 	}
-	for (var i = 0; i < total_teams; ++i) {
-		var val = parseFloat(document.getElementById("total{}".format(i)).innerText);
+	for (let i = 0; i < total_teams; ++i) {
+		const val = parseFloat(document.getElementById(`total${i}`).innerText);
 		if (val == highest_tot) {
-			document.getElementById("total{}".format(i)).className = "best";
+			document.getElementById(`total${i}`).className = "best";
 		} else {
-			document.getElementById("total{}".format(i)).className = "";
+			document.getElementById(`total${i}`).className = "";
 		}
 	}
 
@@ -234,14 +221,14 @@ var increment = function() {
 		resetTotal();
 	}
 
-	if ( (" " + this.className + " ").indexOf(" clicked ") > -1 )  {
+	if (this.classList.contains("clicked"))  {
 		// uncheck ad decrement from total
 		should_click = false;
-		this.className = this.className.split(" ")[0];
+		this.classList.remove("clicked");
 		total.innerText = parseFloat(total.innerText) - val;
 		players_picked_per_team[team]--;
 	} else {
-		this.className += " clicked";
+		this.classList.add("clicked");
 		total.innerText = parseFloat(total.innerText) + val;
 		players_picked_per_team[team]++;
 	}
@@ -253,7 +240,7 @@ var increment = function() {
 	if (!players_picked && !evaluate) {
 		browser.storage.local.set({
 			clicked_team: team,
-			clicked_name: this.getElementsByTagName("span")[0].innerText,
+			clicked_name: this.getElementsByTagName("p")[0].innerText,
 			should_click: should_click
 		}, function() {});
 		browser.tabs.executeScript({file: "/content_scripts/response.js"}).then(onResponseGot).catch(onError);
@@ -274,10 +261,9 @@ function last_updated(date_str) {
 }
 
 function setup_html(num_teams) {
-	for (var i = 0 ; i < num_teams; ++i) {
-		var th = document.createElement("th");
-		th.className = "name";
-		document.getElementById("header_row").appendChild(th);
+	for (let i = 0 ; i < num_teams; ++i) {
+		const div = document.createElement("div");
+		document.getElementById("headerRow").appendChild(div);
 		players_picked_per_team.push(0);
 	}
 }
@@ -296,7 +282,7 @@ function onStorageGot(storage) {
 
 			last_updated(j["updated"]);
 			fillTable({...j, ...storage});
-			var tds = document.getElementsByClassName("player_td");
+			var tds = document.getElementsByClassName("playerData");
 			for (var i = 0; i < tds.length; ++i) {
 				if (tds[i].innerText.trim() != "-") {
 					tds[i].addEventListener("click", increment, false);
