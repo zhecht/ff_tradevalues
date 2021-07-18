@@ -163,24 +163,27 @@ var changeScoring = function() {
 	resetBtns();
 	this.className = "active";
 
-	var rows = document.getElementsByClassName("player_row");
+	const rows = document.getElementsByClassName("playerRow");
 	var total_teams = parseInt(document.getElementById("total_teams").value);
 	var all_tot = [];
 	for (var i = 0; i < total_teams; ++i) {
 		all_tot.push(0);
 	}
 
-	for (var i = 0; i < rows.length; ++i) {
-		var tds = rows[i].getElementsByTagName("td");
-		for (var t = 0; t < total_teams; ++t) {
-			var sp = tds[t].id.split("_");
+	for (let i = 0; i < rows.length; ++i) {
+		const cols = rows[i].getElementsByClassName("playerData");
+		for (let t = 0; t < total_teams; ++t) {
+			const sp = cols[t].id.split("_");
 			if (sp.length > 2) {
-				var val = parseFloat(sp[scoring_idx]);
-				tds[t].getElementsByTagName("span")[1].innerText = val;
+				const val = parseFloat(sp[scoring_idx]);
+				cols[t].getElementsByTagName("p")[0].innerText = cols[t].getElementsByTagName("p")[0].innerText;
+				if (val) {
+					cols[t].getElementsByTagName("p")[1].innerText = val.toFixed(1);
+				}
 				if (players_picked) {
 					all_tot[t] += val;
 				} else {
-					if ((" " + tds[t].className + " ").indexOf(" clicked ") > -1) {
+					if (cols[t].classList.contains("clicked")) {
 						all_tot[t] += val;
 					}
 				}
