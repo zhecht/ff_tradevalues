@@ -336,4 +336,4 @@ for (var i = 0; i < btns.length; ++i) {
 	btns[i].addEventListener("click", changeScoring, false);
 }
 
-var continue_link = document.getElementById("continue").getElementsByTagName("a")[0].addEventListener("click", continueTrade, false);
+document.getElementById("continue").getElementsByTagName("a")[0].addEventListener("click", continueTrade, false);
